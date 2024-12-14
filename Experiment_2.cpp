@@ -67,7 +67,7 @@ class Student{
 
 
 };
-
+int Student::count =0;
 int main()
 {   Student S,S1(S);
     S.display();
