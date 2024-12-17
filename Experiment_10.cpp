@@ -1,81 +1,173 @@
-
-#include<iostream.h>
-#include<conio.h>
-#include<graphics.h>
+//cohen-sutherland line clipping (i/p 100 100 200 200)
+#include<iostream>
+#include<stdlib.h>
 #include<math.h>
-void Window()
+#include<graphics.h>
+//#include<dos.h>
+using namespace std;
+typedef struct coordinate
 {
-	line (200,200,350,200);
-	line(350,200,350,350);
-	line(200,200,200,350);
-	line(200,350,350,350);
-}
-void Code(char c[4],float x,float y)
-{        c[0]=(x<200)?'1':'0';
-	 c[1]=(x>350)?'1':'0';
-	 c[2]=(y<200)?'1':'0';
-	 c[3]=(y>350)?'1':'0';
-}
-void Clipping  (char c[],char d[],float &x,float &y,float m)
+	int x,y;
+	char code[4];
+}PT;
+
+void drawwindow();
+void drawline(PT p1,PT p2);
+PT setcode(PT p);
+int visibility(PT p1,PT p2);
+PT resetendpt(PT p1,PT p2);
+
+int main()
 {
-	int flag=1,i=0;
-	for (i=0;i<4;i++)
+	int gd=DETECT,v,gm;
+	PT p1,p2,p3,p4,ptemp;
+
+	cout<<"\nEnter x1 and y1\n";
+	cin>>p1.x>>p1.y;
+	cout<<"\nEnter x2 and y2\n";
+	cin>>p2.x>>p2.y;
+
+	initgraph(&gd,&gm,NULL);
+	drawwindow();
+	delay(1000);
+
+	drawline(p1,p2);
+	delay(1000);
+	cleardevice();
+
+	delay(500);
+	p1=setcode(p1);
+	p2=setcode(p2);
+	v=visibility(p1,p2);
+	delay(500);
+
+	switch(v)
 	{
-		if(c[i]!='0' && d[i]!='0')
-		{
-			flag=0;
+	case 0: drawwindow();
+			delay(1000);
+			drawline(p1,p2);
 			break;
-		}
-		if(flag)
-		{
-			if(c[0]!='0')
-			{
-				y=m*(200-x)+y;
-				x=200;
-			}
-			else if(c[1]!='0')
-			{
-				y=m*(350-x)+y;
-				x=350;
-			}
-			else if(c[2]!='0')
-			{
-				x=((200-y)/m)+x;
-				y=200;
-			}
-			else if(c[3]!='0')
-			{
-				x=((350-y)/m)+x;
-				y=350;
-			}
-		}
-		if (flag==0)
-			cout<<"Line lying outside";
+	case 1:	drawwindow();
+			delay(500);
+			break;
+	case 2:	p3=resetendpt(p1,p2);
+			p4=resetendpt(p2,p1);
+			drawwindow();
+			delay(1500);
+			drawline(p3,p4);
+			delay(1500);
+			break;
 	}
+
+	delay(5000);
+	closegraph();
+return 0;
 }
-void main()
+
+void drawwindow()
 {
-int gdriver = DETECT, gmode, errorcode;
-float x1,y1,x2,y2;
-float m;
-char c[4],d[4];
-clrscr();
-initgraph(&gdriver, &gmode, "//Turboc3//bgi");
-cout<<"Enter coordinates";
-cin>>x1>>y1>>x2>>y2;
-cout<<"Before clipping";
-Window();
-line(x1,y1,x2,y2);
-getch();
-cleardevice();
-m=float((y2-y1)/(x2-x1));
-Code(c,x1,y1);
-Code(d,x2,y2) ;
-Clipping(c,d,x1,y1,m);
-Clipping(d,c,x2,y2,m);
-cout<<"After Clipping";
-Window();
-line(x1,y1,x2,y2);
-getch();
-closegraph();
+	line(150,100,450,100);
+	line(450,100,450,350);
+	line(450,350,150,350);
+	line(150,350,150,100);
+}
+
+void drawline(PT p1,PT p2)
+{
+	line(p1.x,p1.y,p2.x,p2.y);
+}
+
+PT setcode(PT p)	//for setting the 4 bit code
+{
+	PT ptemp;
+
+	if(p.y<100)
+		ptemp.code[0]='1';	//Top
+	else
+		ptemp.code[0]='0';
+
+	if(p.y>350)
+		ptemp.code[1]='1';	//Bottom
+	else
+		ptemp.code[1]='0';
+
+	if(p.x>450)
+		ptemp.code[2]='1';	//Right
+	else
+		ptemp.code[2]='0';
+
+	if(p.x<150)
+		ptemp.code[3]='1';	//Left
+	else
+		ptemp.code[3]='0';
+
+	ptemp.x=p.x;
+	ptemp.y=p.y;
+
+	return(ptemp);
+}
+
+int visibility(PT p1,PT p2)
+{
+	int i,flag=0;
+
+for(i=0;i<4;i++)
+   {
+     if((p1.code[i]!='0')||(p2.code[i]!='0'))
+     flag=2;
+    }
+for(i=0;i<4;i++)
+  {
+   if((p1.code[i]==p2.code[i]) &&(p1.code[i]=='1'))
+   flag=1;
+  }
+if(flag==0)  //Line is inside window....Accept
+  return(0);
+
+if(flag==1) //Line is outside window ...Reject
+  return(1);
+
+  return(2);
+}
+
+PT resetendpt(PT p1,PT p2)
+{
+	PT temp;
+	int x,y,i;
+	float m,k;
+
+	if(p1.code[3]=='1')
+		x=150;
+
+	if(p1.code[2]=='1')
+		x=450;
+
+	if((p1.code[3]=='1') || (p1.code[2]=='1'))
+	{
+		m=(float)(p2.y-p1.y)/(p2.x-p1.x);
+		k=(p1.y+(m*(x-p1.x)));
+		temp.y=k;
+		temp.x=x;
+
+		if(temp.y<=350 && temp.y>=100)
+			return (temp);
+	}
+
+	if(p1.code[0]=='1')
+		y=100;
+
+	if(p1.code[1]=='1')
+		y=350;
+
+	if((p1.code[0]=='1') || (p1.code[1]=='1'))
+	{
+		m=(float)(p2.y-p1.y)/(p2.x-p1.x);
+		k=(float)p1.x+(float)(y-p1.y)/m;
+		temp.x=k;
+		temp.y=y;
+
+		return(temp);
+	}
+	else
+		return(p1);
 }
