@@ -1,160 +1,191 @@
-#include<iostream>
-#include<algorithm>
-#include<cstring>
-#include<vector>
-#include<locale>  // For case-insensitive comparison
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
 using namespace std;
 
-class student {
+class PersonalRecord {
 public:
-    long t;
-    string dob;
-    string nam;
+    string name;
+    string dob;  // Date of Birth in YYYY-MM-DD format
+    long phone;
+
+    PersonalRecord(string n, string d, long p) : name(n), dob(d), phone(p) {}
 };
 
-// Function to convert string to lowercase for case-insensitive comparison
-string toLowerCase(const string &s) {
-    string result = s;
-    transform(result.begin(), result.end(), result.begin(), ::tolower);
-    return result;
+// Display the personal record
+void display(PersonalRecord record) {
+    cout << "Name: " << record.name << endl;
+    cout << "Date of Birth: " << record.dob << endl;
+    cout << "Phone: " << record.phone << endl;
 }
 
-// Display function
-void display(student &s) {
-    cout << "Name: " << s.nam << endl;
-    cout << "Date of Birth: " << s.dob << endl;
-    cout << "Telephone Number: " << s.t << endl;
+// Compare by name (ascending order)
+bool compareByName(PersonalRecord a, PersonalRecord b) {
+    return a.name < b.name;
 }
 
-// Search function by Name
-bool searchByName(const student &s, const string &searchTerm) {
-    return toLowerCase(s.nam) == toLowerCase(searchTerm);
+// Compare by phone (ascending order)
+bool compareByPhone(PersonalRecord a, PersonalRecord b) {
+    return a.phone < b.phone;
 }
 
-// Search function by Date of Birth
-bool searchByDOB(const student &s, const string &searchTerm) {
-    return s.dob == searchTerm;
+// Compare by date of birth (ascending order)
+bool compareByDOB(PersonalRecord a, PersonalRecord b) {
+    return a.dob < b.dob;
 }
 
-// Search function by Telephone Number
-bool searchByPhoneNumber(const student &s, const long &searchTerm) {
-    return s.t == searchTerm;
+// Search for a record by name
+PersonalRecord* searchByName(vector<PersonalRecord>& records, string searchName) {
+    for (int i = 0; i < records.size(); i++) {
+        if (records[i].name == searchName) {
+            return &records[i];
+        }
+    }
+    return nullptr;
+}
+
+// Search for a record by phone
+PersonalRecord* searchByPhone(vector<PersonalRecord>& records, long searchPhone) {
+    for (int i = 0; i < records.size(); i++) {
+        if (records[i].phone == searchPhone) {
+            return &records[i];
+        }
+    }
+    return nullptr;
+}
+
+// Search for a record by DOB
+PersonalRecord* searchByDOB(vector<PersonalRecord>& records, string searchDOB) {
+    for (int i = 0; i < records.size(); i++) {
+        if (records[i].dob == searchDOB) {
+            return &records[i];
+        }
+    }
+    return nullptr;
 }
 
 int main() {
-    string search;
-    vector<student> s;
-    int n;
+    vector<PersonalRecord> records;
 
-    student s1;
-    cout << "Enter Number of Students: ";
-    cin >> n;
-    for (int i = 0; i < n; i++) {
-        cout << "Enter Name: ";
-        cin >> s1.nam;
-        cout << "Enter Date of Birth (YYYY-MM-DD): ";
-        cin >> s1.dob;
-        cout << "Enter Telephone Number: ";
-        cin >> s1.t;
-        s.push_back(s1);
-    }
+    int choice;
 
-    int ch;
-    cout << "\nChoose an operation:\n";
-    cout << "1. Sort by Name\n";
-    cout << "2. Sort by Phone Number\n";
-    cout << "3. Sort by DOB\n";
-    cout << "4. Search by Name\n";
-    cout << "5. Search by Date of Birth\n";
-    cout << "6. Search by Phone Number\n";
-    cout << "7. Exit\n";
-    cout << "Enter your choice: ";
-    cin >> ch;
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Enter New Record\n";
+        cout << "2. Sort by Name\n";
+        cout << "3. Sort by Phone\n";
+        cout << "4. Sort by DOB\n";
+        cout << "5. Search by Name\n";
+        cout << "6. Search by Phone\n";
+        cout << "7. Search by DOB\n";
+        cout << "8. Display All Records\n";
+        cout << "9. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    switch (ch) {
-        case 1:
-            sort(s.begin(), s.end(), [](student &a, student &b) {
-                return a.nam < b.nam;  // Sort by name in ascending order
-            });
-            cout << "Sorted by Name:\n";
-            for (int i = 0; i < s.size(); ++i) {
-                display(s[i]);  // Display sorted data
+        switch (choice) {
+            case 1: {
+                // Enter New Record
+                string name, dob;
+                long phone;
+                cout << "Enter Name: ";
+                cin >> name;
+                cout << "Enter Date of Birth (YYYY-MM-DD): ";
+                cin >> dob;
+                cout << "Enter Phone Number: ";
+                cin >> phone;
+
+                PersonalRecord newRecord(name, dob, phone);
+                records.push_back(newRecord);
+                break;
             }
-            break;
-        case 2:
-            sort(s.begin(), s.end(), [](student &a, student &b) {
-                return a.t < b.t;  // Sort by telephone number in ascending order
-            });
-            cout << "Sorted by Telephone Number:\n";
-            for (int i = 0; i < s.size(); ++i) {
-                display(s[i]);  // Display sorted data
+            case 2: {
+                // Sort by Name
+                sort(records.begin(), records.end(), compareByName);
+                cout << "\nSorted by Name:\n";
+                for (int i = 0; i < records.size(); ++i) {
+                    display(records[i]);
+                }
+                break;
             }
-            break;
-        case 3:
-            sort(s.begin(), s.end(), [](student &a, student &b) {
-                return a.dob < b.dob;  // Sort by Date of Birth in ascending order
-            });
-            cout << "Sorted by Date of Birth:\n";
-            for (int i = 0; i < s.size(); ++i) {
-                display(s[i]);  // Display sorted data
+            case 3: {
+                // Sort by Phone
+                sort(records.begin(), records.end(), compareByPhone);
+                cout << "\nSorted by Phone:\n";
+                for (int i = 0; i < records.size(); ++i) {
+                    display(records[i]);
+                }
+                break;
             }
-            break;
-        case 4:
-            cout << "Enter Name to Be Searched: ";
-            cin >> search;
-
-            // Search by Name
-            vector<student>::iterator it_name = find_if(s.begin(), s.end(), [&](const student &stu) {
-                return searchByName(stu, search);
-            });
-
-            if (it_name != s.end()) {
-                cout << "Record Found:\n";
-                display(*it_name);
-            } else {
-                cout << "Record Not Found!\n";
+            case 4: {
+                // Sort by DOB
+                sort(records.begin(), records.end(), compareByDOB);
+                cout << "\nSorted by Date of Birth:\n";
+                for (int i = 0; i < records.size(); ++i) {
+                    display(records[i]);
+                }
+                break;
             }
-            break;
-        case 5:
-            cout << "Enter Date of Birth (YYYY-MM-DD) to Be Searched: ";
-            cin >> search;
-
-            // Search by Date of Birth
-            vector<student>::iterator it_dob = find_if(s.begin(), s.end(), [&](const student &stu) {
-                return searchByDOB(stu, search);
-            });
-
-            if (it_dob != s.end()) {
-                cout << "Record Found:\n";
-                display(*it_dob);
-            } else {
-                cout << "Record Not Found!\n";
+            case 5: {
+                // Search by Name
+                string searchName;
+                cout << "Enter Name to search: ";
+                cin >> searchName;
+                PersonalRecord* foundRecord = searchByName(records, searchName);
+                if (foundRecord) {
+                    cout << "\nRecord found:\n";
+                    display(*foundRecord);
+                } else {
+                    cout << "\nRecord not found.\n";
+                }
+                break;
             }
-            break;
-        case 6:
-            long phoneSearch;
-            cout << "Enter Phone Number to Be Searched: ";
-            cin >> phoneSearch;
-
-            // Search by Phone Number
-            vector<student>::iterator it_phone = find_if(s.begin(), s.end(), [&](const student &stu) {
-                return searchByPhoneNumber(stu, phoneSearch);
-            });
-
-            if (it_phone != s.end()) {
-                cout << "Record Found:\n";
-                display(*it_phone);
-            } else {
-                cout << "Record Not Found!\n";
+            case 6: {
+                // Search by Phone
+                long searchPhone;
+                cout << "Enter Phone number to search: ";
+                cin >> searchPhone;
+                PersonalRecord* foundRecord = searchByPhone(records, searchPhone);
+                if (foundRecord) {
+                    cout << "\nRecord found:\n";
+                    display(*foundRecord);
+                } else {
+                    cout << "\nRecord not found.\n";
+                }
+                break;
             }
-            break;
-        case 7:
-            cout << "Exiting...\n";
-            break;
-        default:
-            cout << "Invalid choice. Exiting...\n";
-            break;
-    }
+            case 7: {
+                // Search by DOB
+                string searchDOB;
+                cout << "Enter Date of Birth (YYYY-MM-DD) to search: ";
+                cin >> searchDOB;
+                PersonalRecord* foundRecord = searchByDOB(records, searchDOB);
+                if (foundRecord) {
+                    cout << "\nRecord found:\n";
+                    display(*foundRecord);
+                } else {
+                    cout << "\nRecord not found.\n";
+                }
+                break;
+            }
+            case 8: {
+                // Display All Records
+                cout << "\nAll Records:\n";
+                for (int i = 0; i < records.size(); ++i) {
+                    display(records[i]);
+                }
+                break;
+            }
+            case 9:
+                cout << "Exiting program...\n";
+                break;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+                break;
+        }
+
+    } while (choice != 9);
 
     return 0;
 }
