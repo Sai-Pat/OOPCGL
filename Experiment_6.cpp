@@ -1,6 +1,7 @@
 #include<iostream>
-#include<algorithm>
 #include<vector>
+#include<algorithm>
+
 #include<cstring>
 using namespace std;
 class PR{
@@ -14,22 +15,26 @@ class PR{
             cout<<"ENter Roll no : ";
             cin>>roll;
         }
-        void display()
+        void display()const
         {
             cout<<"Name is : "<<name;
             cout<<"Roll no is : "<<roll;
         }
-        static bool compare(PR &a , PR &b)
+        static bool compare(const PR& a ,const PR& b)
         {
-            return a.name>b.name;
+            return a.name <b.name;
         }
 };
 int main()
 {
-    int n,x;
+
+    int n,x,y;
     cout<<"Enter Numbr of Students : ";
     cin>>n;
+    cout<<"Wnna continue ? ( 0 or 1 ): ";
+    cin>>y;
     vector<PR> v(n);
+    do{
     cout<<"What to DO? : "<<endl;
     cout<<"1.insert data"<<endl;
     cout<<"2.sort data"<<endl;
@@ -59,11 +64,12 @@ int main()
             {
                 names.push_back(v[i].name);
             }
-            sort(v.begin(),v.end(),PR::compare);
+            sort(names.begin(),names.end());
             string key;
             cout<<"Enter Name to Be searched : ";
             cin>>key;
-            if(binary_search(v.begin(),v.end(),key)){
+            if(binary_search(names.begin(),names.end(),key)){
+
                 cout<<"REcord Found !"<<endl;
             }
             else{
@@ -73,8 +79,19 @@ int main()
 
             break;
         }
+        case 4:
+        {
+            for(int i=0;i<n;i++)
+            {
+                v[i].display();
+                cout<<endl;
+            }
+            break;
+        }
+    }
 
     }
+    while(y==1);
 
     return 0;
 }
